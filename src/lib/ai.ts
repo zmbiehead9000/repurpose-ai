@@ -4,17 +4,17 @@ import { type PlatformId, PLATFORMS } from './constants';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const PLATFORM_INSTRUCTIONS: Record<PlatformId, string> = {
-  twitter: `Write a punchy Twitter/X thread (3-5 tweets). Each tweet ≤280 chars.
-Start with a hook. Use line breaks between tweets. Number them 1/, 2/, etc.`,
-  linkedin: `Write a professional LinkedIn post (150-300 words).
-Start with a strong hook line. Use short paragraphs.
-End with a thought-provoking question or call to action.`,
-  instagram: `Write an Instagram caption (100-150 words).
-Conversational and engaging. End with 5-10 relevant hashtags.`,
-  youtube: `Write a YouTube video description (200-300 words).
-Start with 2 sentences summarizing the video.
-Include a timestamps section (make up 4-5 realistic ones).
-End with a subscribe CTA and 5 hashtags.`,
+  twitter: `Write a Twitter/X thread (3-5 tweets). Each tweet ≤280 chars. Number them 1/, 2/, etc.
+Rules: sound like a real person talking, not a blog post. Short punchy sentences. No buzzwords like "delve", "crucial", "game-changer", "leverage", or "in today's world". No emojis unless it feels natural. Start with something that stops the scroll — a bold statement, surprising fact, or hot take.`,
+
+  linkedin: `Write a LinkedIn post (150-250 words).
+Rules: write like you're texting a smart friend, not writing a press release. No "I'm excited to share", no "In today's fast-paced world", no corporate speak. Use very short paragraphs (1-2 sentences max). Start with a one-liner that hits hard. Be direct and a little opinionated. End with a real question people actually want to answer.`,
+
+  instagram: `Write an Instagram caption (80-120 words).
+Rules: casual, real, like a person wrote it at 11pm not a marketing team. No fluff. Get to the point fast. Can be slightly vulnerable or funny. End with 5-8 hashtags that are actually relevant (not generic like #instagood).`,
+
+  youtube: `Write a YouTube video description (150-250 words).
+Rules: first 2 lines must make someone want to click — treat it like ad copy. Then explain what they'll learn/see in plain language. Include a timestamps section with 4-5 realistic chapters. End with a casual subscribe line (not "Don't forget to like and subscribe!"). Add 5 hashtags at the bottom.`,
 };
 
 export async function generatePosts(
@@ -28,7 +28,9 @@ export async function generatePosts(
     })
     .join('\n\n');
 
-  const prompt = `You are a social media expert. Repurpose the following content into posts for each platform listed below. Return ONLY the posts, separated by the platform headers exactly as shown.
+  const prompt = `You are a content writer who sounds like a real human — not an AI, not a marketer. You write the way people actually talk online. No fluff, no corporate language, no "In conclusion", no "It's important to note". Just real, direct, engaging content.
+
+Repurpose the content below into posts for each platform. Return ONLY the posts separated by the platform headers exactly as shown. Do not add any intro or explanation.
 
 ORIGINAL CONTENT:
 ${content.slice(0, 8000)}
@@ -40,7 +42,7 @@ ${platformInstructions}`;
     model: 'gpt-4o',
     messages: [{ role: 'user', content: prompt }],
     max_tokens: 2000,
-    temperature: 0.7,
+    temperature: 0.9,
   });
 
   const raw = response.choices[0].message.content ?? '';
